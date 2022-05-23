@@ -1,4 +1,5 @@
-﻿using ByteBank.Core.Repository;
+﻿using ByteBank.Core.Model;
+using ByteBank.Core.Repository;
 using ByteBank.Core.Service;
 using System;
 using System.Collections.Generic;
@@ -29,34 +30,42 @@ namespace ByteBank.View
 
             var contas = r_Repositorio.GetContaClientes();
 
-            var resultado = new List<string>();
-
             AtualizarView(new List<string>(), TimeSpan.Zero);
 
             var inicio = DateTime.Now;
 
-            var contasTarefas = contas.Select(conta =>
+            ConsolidarContas(contas)
+                .ContinueWith(task =>
+                {
+                    var fim = DateTime.Now;
+                    var resultado = task.Result;
+
+                    AtualizarView(resultado, fim - inicio);
+                }, taskSchedulerUI)
+                .ContinueWith(task =>
+                {
+                    BtnProcessar.IsEnabled = true;
+                }, taskSchedulerUI);
+        }
+
+        private Task<List<string>> ConsolidarContas(IEnumerable<ContaCliente> contas)
+        {
+            var resultado = new List<string>();
+
+            var tasks = contas.Select(conta =>
             {
                 return Task.Factory.StartNew(() =>
                 {
-                    var resultadoConta = r_Servico.ConsolidarMovimentacao(conta);
-                    resultado.Add(resultadoConta);
+                    var contaResultado = r_Servico.ConsolidarMovimentacao(conta);
+                    resultado.Add(contaResultado);
                 });
-            }).ToArray();
+            });
 
-            Task.WhenAll(contasTarefas)
-              .ContinueWith(task =>
-              {
-                  var fim = DateTime.Now;
-                  AtualizarView(resultado, fim - inicio);
-              }, taskSchedulerUI)
-              .ContinueWith(task =>
-              {
-                  BtnProcessar.IsEnabled = true;
-              }, taskSchedulerUI);
-
+            return Task.WhenAll(tasks).ContinueWith(t =>
+            {
+                return resultado;
+            });
         }
-
 
         private void AtualizarView(List<String> result, TimeSpan elapsedTime)
         {
