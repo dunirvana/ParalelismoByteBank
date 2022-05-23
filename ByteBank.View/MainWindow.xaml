@@ -17,6 +17,13 @@
                    DockPanel.Dock="Bottom"
                    HorizontalAlignment="Right">
         </TextBlock>
+
+        <!-- Barra de Progresso para dar feedback ao usuário -->
+        <ProgressBar Name="PgsProgresso"
+             Minimum="0"
+             Height="23"
+             DockPanel.Dock="Bottom"/>
+        
         <Button Name="BtnProcessar"
                 Padding="10"
                 DockPanel.Dock="Bottom"
