@@ -48,3 +48,32 @@ Task.WhenAll(tarefas)
     // segundo tratamento pós execução
   }, taskSchedulerUI);
 ```
+
+## Async / await
+- Introduzido na versão 5 do C# para facilitar o trabalho com tasks;
+- Ele abstrai a necessidade de conversão de tasks e resolve a questão de contexto de execução das tasks;
+- O async é usado para identificar que um método esta trabalhando de forma assíncrona;
+- O await aguarda a finalização da execução de uma tarefa, tornando desnecessário a intervenção manual para aguardar o término das execuções, encadeamento de novas execuções e a preocupação com o contexto das threads;
+- Em resumo ele aguarda sem bloquear;
+
+```
+private async Task<string[]> MeuMetodo()
+{
+	var tarefas = Task.Factory.StartNew(() =>
+	{
+	    // executar uma tarefa aqui
+	});
+	
+    return await Task.WhenAll(tarefas);
+}
+
+private async void MeuBtn_Click(object sender, RoutedEventArgs e)
+{
+    MeuBtn.IsEnabled = false;
+
+    var resultado = await MeuMetodo();
+
+    MeuBtn.IsEnabled = true;
+}
+
+```

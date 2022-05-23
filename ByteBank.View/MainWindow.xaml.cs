@@ -25,7 +25,6 @@ namespace ByteBank.View
 
         private async void BtnProcessar_Click(object sender, RoutedEventArgs e)
         {
-            var taskSchedulerUI = TaskScheduler.FromCurrentSynchronizationContext();
             BtnProcessar.IsEnabled = false;
 
             var contas = r_Repositorio.GetContaClientes();
