@@ -24,6 +24,9 @@ namespace ByteBank.View
 
         private void BtnProcessar_Click(object sender, RoutedEventArgs e)
         {
+            var taskSchedulerUI = TaskScheduler.FromCurrentSynchronizationContext();
+            BtnProcessar.IsEnabled = false;
+
             var contas = r_Repositorio.GetContaClientes();
 
             var resultado = new List<string>();
@@ -41,11 +44,17 @@ namespace ByteBank.View
                 });
             }).ToArray();
 
-            Task.WaitAll(contasTarefas);
+            Task.WhenAll(contasTarefas)
+              .ContinueWith(task =>
+              {
+                  var fim = DateTime.Now;
+                  AtualizarView(resultado, fim - inicio);
+              }, taskSchedulerUI)
+              .ContinueWith(task =>
+              {
+                  BtnProcessar.IsEnabled = true;
+              }, taskSchedulerUI);
 
-            var fim = DateTime.Now;
-
-            AtualizarView(resultado, fim - inicio);
         }
 
 
